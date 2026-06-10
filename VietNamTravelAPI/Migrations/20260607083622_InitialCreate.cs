@@ -39,6 +39,20 @@ namespace VietNamTravelAPI.Migrations
                     table.PrimaryKey("PK_Locations", x => x.LocationId);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            // Tạo bảng Users (dùng IF NOT EXISTS để an toàn với DB cũ đã có sẵn bảng này).
+            // Cần cho máy mới: giúp `dotnet ef database update` tạo đủ bảng Users.
+            migrationBuilder.Sql(@"
+                CREATE TABLE IF NOT EXISTS `Users` (
+                    `UserId` varchar(255) CHARACTER SET utf8mb4 NOT NULL,
+                    `Email` longtext CHARACTER SET utf8mb4 NOT NULL,
+                    `FullName` longtext CHARACTER SET utf8mb4 NOT NULL,
+                    `Role` longtext CHARACTER SET utf8mb4 NOT NULL,
+                    `IsBanned` tinyint(1) NOT NULL,
+                    `CreatedAt` datetime(6) NOT NULL,
+                    CONSTRAINT `PK_Users` PRIMARY KEY (`UserId`)
+                ) CHARACTER SET=utf8mb4;
+            ");
         }
 
         /// <inheritdoc />
