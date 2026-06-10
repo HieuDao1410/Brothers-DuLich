@@ -1,0 +1,24 @@
+# ===== Flutter / Dart (ltdd_brothers) =====
+ltdd_brothers/build/
+ltdd_brothers/.dart_tool/
+ltdd_brothers/.flutter-plugins
+ltdd_brothers/.flutter-plugins-dependencies
+ltdd_brothers/.packages
+ltdd_brothers/android/local.properties
+ltdd_brothers/android/.gradle/
+ltdd_brothers/android/app/debug/
+ltdd_brothers/android/app/profile/
+ltdd_brothers/android/app/release/
+ltdd_brothers/ios/Pods/
+ltdd_brothers/.idea/
+**/*.iml
+
+# ===== ASP.NET Core (VietNamTravelAPI) =====
+VietNamTravelAPI/bin/
+VietNamTravelAPI/obj/
+VietNamTravelAPI/.vs/
+
+# ===== Chung =====
+*.user
+.DS_Store
+Thumbs.db

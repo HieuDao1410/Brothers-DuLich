@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "915643934183",
+    "project_id": "vietnamtravel-a1512",
+    "storage_bucket": "vietnamtravel-a1512.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:915643934183:android:e5c5f2deef99343b6d8942",
+        "android_client_info": {
+          "package_name": "com.example.ltdd_brothers"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTAnAKtM9xut4O4CK_7U9B9eZqRukF-gI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
