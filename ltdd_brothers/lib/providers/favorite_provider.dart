@@ -52,7 +52,7 @@ class FavoriteProvider with ChangeNotifier {
 
     // 2. Gửi request ngầm đồng bộ lên Server
     try {
-      await _favoriteService.toggleFavorite(uid, location.id);
+      await _favoriteService.toggleFavorite(uid, location);
     } catch (e) {
       debugPrint("Lỗi đồng bộ thả tim lên server: $e");
       // Nếu server lỗi mạng, hoàn tác (rollback) lại giao diện

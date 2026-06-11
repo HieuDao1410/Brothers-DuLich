@@ -4,7 +4,7 @@ import '../models/location_model.dart';
 
 class FavoriteService {
   // Thay đổi baseUrl phù hợp với cấu hình máy/emulator của bạn (VD: http://10.0.2.2:5000/api)
-  final String baseUrl = "http://10.0.2.2:5000/api/Favorites";
+  final String baseUrl = "http://10.0.2.2:5144/api/Favorites";
 
   // Lấy danh sách địa danh yêu thích của một cơ sở dữ liệu trung tâm
   Future<List<LocationModel>> getFavorites(String userId) async {
@@ -18,14 +18,25 @@ class FavoriteService {
     }
   }
 
-  // Thêm hoặc bỏ yêu thích (Toggle)
-  Future<bool> toggleFavorite(String userId, int locationId) async {
+  // Thêm hoặc bỏ yêu thích (Toggle) - gửi kèm đủ thông tin để server tự thêm
+  // địa danh vào CSDL nếu đó là địa điểm ngoài (tab Lân cận/OpenStreetMap).
+  Future<bool> toggleFavorite(String userId, LocationModel location) async {
+    // Mã OSM có thể vượt kiểu INT của server -> gửi 0 để server tự tìm/tạo theo dữ liệu
+    final int safeId = (location.id > 0 && location.id <= 2147483647) ? location.id : 0;
     final response = await http.post(
       Uri.parse('$baseUrl/toggle'),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({
         "userId": userId,
-        "locationId": locationId,
+        "locationId": safeId,
+        "name": location.name,
+        "province": location.province,
+        "description": location.description,
+        "imageUrl": location.imageUrl,
+        "rating": location.rating,
+        "category": location.category,
+        "latitude": location.latitude,
+        "longitude": location.longitude,
       }),
     );
 
