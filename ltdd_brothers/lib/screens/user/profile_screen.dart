@@ -459,6 +459,96 @@ class _SettingsScreenState extends State<SettingsScreen> {
 // =====================================================================
 class SupportScreen extends StatelessWidget {
   const SupportScreen({Key? key}) : super(key: key);
+
+  static const List<Map<String, String>> _faqs = [
+    {
+      'icon': '🔑',
+      'question': 'Cách thay đổi mật khẩu?',
+      'answer':
+      'Ứng dụng dùng Firebase Authentication. Để đặt lại mật khẩu:\n\n'
+          '1. Đăng xuất khỏi tài khoản hiện tại.\n'
+          '2. Tại màn hình Đăng nhập, nhấn "Quên mật khẩu?".\n'
+          '3. Nhập địa chỉ email đã đăng ký.\n'
+          '4. Kiểm tra hộp thư và nhấn link đặt lại mật khẩu.\n'
+          '5. Tạo mật khẩu mới và đăng nhập lại.',
+    },
+    {
+      'icon': '⭐',
+      'question': 'Làm sao để xóa bài đánh giá?',
+      'answer':
+      'Hiện tại người dùng chưa thể tự xóa đánh giá đã đăng.\n\n'
+          'Để yêu cầu gỡ bỏ, hãy liên hệ quản trị viên và cung cấp:\n'
+          '• Tên địa danh đã đánh giá\n'
+          '• Nội dung đánh giá cần xóa\n'
+          '• Lý do yêu cầu\n\n'
+          'Quản trị viên sẽ xử lý trong vòng 24 giờ.',
+    },
+    {
+      'icon': '🗓️',
+      'question': 'Cách tạo một Lịch trình mới?',
+      'answer':
+      '1. Nhấn tab "Chuyến đi" (icon ❤️) ở thanh điều hướng dưới.\n'
+          '2. Nhấn nút "Tạo một chuyến đi" (hoặc icon + góc trên phải).\n'
+          '3. Đặt tên và chọn ngày đi – ngày về (tuỳ chọn).\n'
+          '4. Nhấn "TẠO" để lưu lịch trình.\n\n'
+          'Thêm địa điểm vào lịch trình:\n'
+          '5. Mở địa danh bất kỳ ở tab "Khám phá".\n'
+          '6. Nhấn "Thêm vào Lịch trình" ở cuối màn hình.',
+    },
+    {
+      'icon': '📝',
+      'question': 'Cách đăng bài lên Cộng đồng?',
+      'answer':
+      '1. Nhấn tab "Cộng đồng" ở thanh điều hướng.\n'
+          '2. Nhấn nút bút chì ✏️ ở góc dưới bên phải.\n'
+          '3. Nhập nội dung, thêm ảnh hoặc check-in địa danh (tuỳ chọn).\n'
+          '4. Nhấn "ĐĂNG" để chia sẻ lên bảng tin.\n\n'
+          'Bạn cũng có thể xóa bài đã đăng bằng cách nhấn ••• trên bài viết.',
+    },
+    {
+      'icon': '✍️',
+      'question': 'Cách viết đánh giá cho địa danh?',
+      'answer':
+      '1. Ở tab "Khám phá", nhấn vào địa danh muốn đánh giá.\n'
+          '2. Nhấn nút "Đánh giá" ở màn hình chi tiết địa danh.\n'
+          '3. Chọn số sao từ 1 đến 5 sao.\n'
+          '4. Nhập nội dung nhận xét chi tiết.\n'
+          '5. Nhấn "ĐĂNG" để gửi đánh giá.\n\n'
+          'Đánh giá sẽ hiển thị trong "Đánh giá của tôi" ở tab Tài khoản.',
+    },
+    {
+      'icon': '📍',
+      'question': 'Không tìm thấy địa điểm lân cận?',
+      'answer':
+      'Tab "Lân cận" dùng GPS và dữ liệu OpenStreetMap thực tế.\n\n'
+          'Kiểm tra các bước sau:\n'
+          '• Cho phép ứng dụng truy cập vị trí trong Cài đặt điện thoại.\n'
+          '• Đảm bảo GPS/Vị trí đang được bật.\n'
+          '• Kiểm tra kết nối internet đang hoạt động.\n'
+          '• Thử đổi danh mục: Địa danh / Khách sạn / Ăn uống.\n\n'
+          'Nếu vẫn lỗi, máy chủ OpenStreetMap có thể bận – thử lại sau vài giây.',
+    },
+    {
+      'icon': '📷',
+      'question': 'Ứng dụng có hỗ trợ đăng ảnh không?',
+      'answer':
+      'Có! Ứng dụng hỗ trợ đăng ảnh ở các nơi:\n\n'
+          '• Bài viết Cộng đồng: Nhấn nút "Ảnh" khi tạo bài viết.\n'
+          '• Ảnh địa danh: Do quản trị viên quản lý.\n\n'
+          'Ảnh được lưu trên máy chủ và hiển thị tự động trong bài viết sau khi đăng thành công.',
+    },
+    {
+      'icon': '🔒',
+      'question': 'Tài khoản bị khóa phải làm gì?',
+      'answer':
+      'Tài khoản có thể bị khóa khi vi phạm tiêu chuẩn cộng đồng.\n\n'
+          'Để được hỗ trợ mở khóa:\n'
+          '• Liên hệ quản trị viên qua email hỗ trợ bên dưới.\n'
+          '• Cung cấp địa chỉ email đã đăng ký và lý do kháng cáo.\n\n'
+          'Lưu ý: Các vi phạm nghiêm trọng có thể bị khóa vĩnh viễn.',
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -466,28 +556,253 @@ class SupportScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.bg(context),
         iconTheme: IconThemeData(color: AppColors.text(context)),
-        title: Text('Hỗ trợ', style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold)),
+        title: Text('Hỗ trợ',
+            style: TextStyle(
+                color: AppColors.text(context), fontWeight: FontWeight.bold)),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Chúng tôi có thể giúp gì cho bạn?', style: TextStyle(color: AppColors.text(context), fontSize: 20, fontWeight: FontWeight.bold)),
+          // ── Header ──────────────────────────────────────
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.green.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.help_outline,
+                    color: AppColors.green, size: 28),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Chúng tôi có thể\ngiúp gì cho bạn?',
+                      style: TextStyle(
+                          color: AppColors.text(context),
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          height: 1.3),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Nhấn vào câu hỏi để xem hướng dẫn chi tiết.',
+                      style: TextStyle(
+                          color: AppColors.textMuted(context), fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 24),
-          _buildFaqItem(context, 'Cách thay đổi mật khẩu?'),
-          _buildFaqItem(context, 'Làm sao để xóa bài đánh giá?'),
-          _buildFaqItem(context, 'Cách tạo một Lịch trình mới?'),
+
+          // ── Danh sách FAQ ────────────────────────────────
+          ..._faqs.map((faq) => _FaqTile(
+            icon: faq['icon']!,
+            question: faq['question']!,
+            answer: faq['answer']!,
+          )),
+
+          const SizedBox(height: 24),
+
+          // ── Card liên hệ ─────────────────────────────────
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.surface(context),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.border(context)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(children: [
+                  const Icon(Icons.headset_mic_outlined,
+                      color: AppColors.green, size: 22),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Vẫn cần hỗ trợ thêm?',
+                    style: TextStyle(
+                        color: AppColors.text(context),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16),
+                  ),
+                ]),
+                const SizedBox(height: 10),
+                Text(
+                  'Gửi yêu cầu hỗ trợ cho chúng tôi:',
+                  style: TextStyle(
+                      color: AppColors.textMuted(context), fontSize: 14),
+                ),
+                const SizedBox(height: 8),
+                Row(children: [
+                  const Icon(Icons.mail_outline,
+                      color: AppColors.green, size: 16),
+                  const SizedBox(width: 6),
+                  const Text(
+                    'support@vietnamtravel.app',
+                    style: TextStyle(
+                        color: AppColors.green,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600),
+                  ),
+                ]),
+                const SizedBox(height: 4),
+                Row(children: [
+                  Icon(Icons.access_time_outlined,
+                      color: AppColors.textMuted(context), size: 16),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Phản hồi trong vòng 24 giờ làm việc',
+                    style: TextStyle(
+                        color: AppColors.textMuted(context), fontSize: 13),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
         ],
       ),
     );
   }
+}
 
-  Widget _buildFaqItem(BuildContext context, String title) {
-    return Container(
+// =====================================================================
+// WIDGET CON: Tile FAQ có thể mở/đóng với animation
+// =====================================================================
+class _FaqTile extends StatefulWidget {
+  final String icon;
+  final String question;
+  final String answer;
+
+  const _FaqTile({
+    required this.icon,
+    required this.question,
+    required this.answer,
+  });
+
+  @override
+  State<_FaqTile> createState() => _FaqTileState();
+}
+
+class _FaqTileState extends State<_FaqTile>
+    with SingleTickerProviderStateMixin {
+  bool _expanded = false;
+  late final AnimationController _ctrl;
+  late final Animation<double> _turn;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 200));
+    _turn = Tween<double>(begin: 0.0, end: 0.5).animate(
+        CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _toggle() {
+    setState(() => _expanded = !_expanded);
+    _expanded ? _ctrl.forward() : _ctrl.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        title: Text(title, style: TextStyle(color: AppColors.text(context))),
-        trailing: Icon(Icons.keyboard_arrow_down, color: AppColors.textMuted(context)),
+      decoration: BoxDecoration(
+        color: AppColors.surface(context),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _expanded
+              ? AppColors.green.withOpacity(0.5)
+              : AppColors.border(context),
+        ),
+      ),
+      child: Column(
+        children: [
+          // ── Hàng câu hỏi ────────────────────────────────
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+            child: InkWell(
+              onTap: _toggle,
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                child: Row(
+                  children: [
+                    Text(widget.icon,
+                        style: const TextStyle(fontSize: 20)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.question,
+                        style: TextStyle(
+                          color: AppColors.text(context),
+                          fontSize: 15,
+                          fontWeight: _expanded
+                              ? FontWeight.w700
+                              : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                    RotationTransition(
+                      turns: _turn,
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: _expanded
+                            ? AppColors.green
+                            : AppColors.textMuted(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // ── Phần trả lời (ẩn/hiện) ───────────────────────
+          AnimatedCrossFade(
+            firstChild: const SizedBox(width: double.infinity),
+            secondChild: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Divider(color: AppColors.border(context), height: 1),
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.answer,
+                    style: TextStyle(
+                      color: AppColors.textMuted(context),
+                      fontSize: 14,
+                      height: 1.7,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            duration: const Duration(milliseconds: 200),
+          ),
+        ],
       ),
     );
   }

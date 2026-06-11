@@ -1,65 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/favorite_provider.dart';
-import '../../services/api_service.dart';
-import '../../utils/app_colors.dart';
-import '../../utils/location_placeholder.dart';
+import 'detail_screen.dart';
 
-class FavoriteScreen extends StatelessWidget {
+class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final favoriteProvider = Provider.of<FavoriteProvider>(context);
-    final favoriteItems = favoriteProvider.favoriteLocations;
+  State<FavoriteScreen> createState() => _FavoriteScreenState();
+}
 
+class _FavoriteScreenState extends State<FavoriteScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Tự động fetch dữ liệu yêu thích từ Server khi vừa mở màn hình
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<FavoriteProvider>(context, listen: false).loadFavorites();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bg(context),
       appBar: AppBar(
-        title: Text('Địa điểm yêu thích', style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold)),
-        backgroundColor: AppColors.bg(context),
-        iconTheme: IconThemeData(color: AppColors.text(context)),
-        elevation: 0,
+        title: const Text('Địa điểm yêu thích'),
       ),
-      body: favoriteItems.isEmpty
-          ? Center(child: Text("Danh sách yêu thích trống", style: TextStyle(color: AppColors.textMuted(context), fontSize: 16)))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: favoriteItems.length,
-              itemBuilder: (context, index) {
-                final location = favoriteItems[index];
-                return Card(
-                  color: AppColors.surface(context),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(8),
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: SizedBox(
-                        width: 80, height: 80,
-                        child: location.imageUrl.isEmpty
-                            ? LocationPlaceholder(category: location.category, name: location.name)
-                            : Image.network(ApiService.fullImageUrl(location.imageUrl), headers: const {'User-Agent': 'ltdd_brothers/1.0'}, fit: BoxFit.cover,
-                                errorBuilder: (c, e, s) => LocationPlaceholder(category: location.category, name: location.name)),
-                      ),
+      body: Consumer<FavoriteProvider>(
+        builder: (context, favoriteProvider, child) {
+          // 1. Đang tải dữ liệu
+          if (favoriteProvider.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final favorites = favoriteProvider.favoriteLocations;
+
+          // 2. Nếu danh sách trống
+          if (favorites.isEmpty) {
+            return const Center(
+              child: Text('Bạn chưa có địa điểm yêu thích nào.'),
+            );
+          }
+
+          // 3. Hiển thị danh sách
+          return ListView.builder(
+            itemCount: favorites.length,
+            itemBuilder: (context, index) {
+              final location = favorites[index];
+              return ListTile(
+                leading: location.imageUrl.isNotEmpty
+                    ? Image.network(location.imageUrl, width: 60, height: 60, fit: BoxFit.cover)
+                    : const Icon(Icons.image, size: 60),
+                title: Text(location.name),
+                subtitle: Text('${location.province} • ⭐ ${location.rating}'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.favorite, color: Colors.red),
+                  onPressed: () {
+                    // Bấm vào tim ở đây sẽ xóa khỏi danh sách yêu thích
+                    favoriteProvider.toggleFavorite(location);
+                  },
+                ),
+                onTap: () {
+                  // Bấm vào item thì chuyển sang màn hình chi tiết
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailScreen(location: location),
                     ),
-                    title: Text(location.name, style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.text(context))),
-                    subtitle: Text('${location.province}\n⭐ ${location.rating}', style: TextStyle(color: AppColors.textMuted(context))),
-                    isThreeLine: true,
-                    trailing: IconButton(
-                      icon: const Icon(Icons.favorite, color: Colors.redAccent),
-                      onPressed: () {
-                        favoriteProvider.toggleFavorite(location);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Đã xóa khỏi danh sách yêu thích'), backgroundColor: Colors.redAccent),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

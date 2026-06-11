@@ -89,6 +89,7 @@ class _DetailScreenState extends State<DetailScreen> {
             iconTheme: const IconThemeData(color: Colors.white),
             backgroundColor: AppColors.bg(context),
             actions: [
+
               Consumer2<FavoriteProvider, TripProvider>(
                 builder: (context, favProv, tripProv, child) {
                   bool isSaved = favProv.isFavorite(widget.location.id) ||

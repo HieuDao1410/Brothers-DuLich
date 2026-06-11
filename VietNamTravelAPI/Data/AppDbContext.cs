@@ -14,5 +14,7 @@ namespace VietNamTravelAPI.Data
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<PostLike> PostLikes { get; set; }
+        public DbSet<FavoriteLocation> FavoriteLocations { get; set; }
+        public DbSet<ScheduleDetail> ScheduleDetails { get; set; }
     }
 }

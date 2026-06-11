@@ -42,8 +42,9 @@ namespace VietNamTravelAPI.Controllers
             {
                 UserId = req.UserId,
                 Title = req.Title ?? string.Empty,
-                StartDate = ParseDate(req.StartDate),
-                EndDate = ParseDate(req.EndDate)
+                // Sử dụng toán tử ?? để gán giá trị mặc định nếu ParseDate trả về null
+                StartDate = ParseDate(req.StartDate) ?? DateTime.Now,
+                EndDate = ParseDate(req.EndDate) ?? DateTime.Now.AddDays(1)
             };
 
             _context.Schedules.Add(schedule);
@@ -64,8 +65,9 @@ namespace VietNamTravelAPI.Controllers
             }
 
             schedule.Title = req.Title ?? string.Empty;
-            schedule.StartDate = ParseDate(req.StartDate);
-            schedule.EndDate = ParseDate(req.EndDate);
+            // Sử dụng toán tử ?? để gán giá trị mặc định nếu ParseDate trả về null
+            schedule.StartDate = ParseDate(req.StartDate) ?? DateTime.Now;
+            schedule.EndDate = ParseDate(req.EndDate) ?? DateTime.Now.AddDays(1);
 
             await _context.SaveChangesAsync();
             return Ok(schedule);

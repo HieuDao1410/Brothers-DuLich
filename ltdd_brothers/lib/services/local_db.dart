@@ -1,109 +1,122 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-// Quản lý cơ sở dữ liệu SQLite cục bộ trên thiết bị (hoạt động Offline).
-// Lưu lịch trình chuyến đi (trips) và các địa điểm đã lưu trong từng chuyến (trip_locations).
 class LocalDb {
-  LocalDb._privateConstructor();
-  static final LocalDb instance = LocalDb._privateConstructor();
-
+  static final LocalDb instance = LocalDb._init();
   static Database? _database;
 
+  LocalDb._init();
+
   Future<Database> get database async {
-    _database ??= await _initDb();
+    if (_database != null) return _database!;
+    _database = await _initDB('travel_offline.db');
     return _database!;
   }
 
-  Future<Database> _initDb() async {
+  Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'travel_local.db');
+    final path = join(dbPath, filePath);
+
     return await openDatabase(
       path,
-      version: 2,
-      onUpgrade: (db, oldVersion, newVersion) async {
-        // Nâng cấp DB cũ: thêm cột ghi chú cho bảng trips
-        if (oldVersion < 2) {
-          await db.execute('ALTER TABLE trips ADD COLUMN notes TEXT');
-        }
-      },
-      onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE trips (
-            id TEXT PRIMARY KEY,
-            serverId INTEGER,
-            userId TEXT,
-            name TEXT,
-            startDate TEXT,
-            endDate TEXT,
-            status TEXT,
-            synced INTEGER DEFAULT 0,
-            notes TEXT
-          )
-        ''');
-        await db.execute('''
-          CREATE TABLE trip_locations (
-            rowId INTEGER PRIMARY KEY AUTOINCREMENT,
-            tripId TEXT,
-            locationId INTEGER,
-            name TEXT,
-            province TEXT,
-            description TEXT,
-            imageUrl TEXT,
-            rating REAL,
-            category TEXT,
-            latitude REAL,
-            longitude REAL
-          )
-        ''');
-      },
+      version: 1,
+      onCreate: _createDB,
     );
   }
 
-  // ===== TRIPS =====
-  Future<void> insertTrip(Map<String, dynamic> trip) async {
-    final db = await database;
-    await db.insert('trips', trip, conflictAlgorithm: ConflictAlgorithm.replace);
+  Future _createDB(Database db, int version) async {
+    // 1. Bảng lưu thông tin chuyến đi tổng quát (Offline)
+    await db.execute('''
+      CREATE TABLE trips (
+        id TEXT PRIMARY KEY,
+        serverId INTEGER,
+        userId TEXT NOT NULL,
+        name TEXT NOT NULL,
+        startDate TEXT,
+        endDate TEXT,
+        status TEXT,
+        synced INTEGER NOT NULL DEFAULT 0,
+        notes TEXT
+      )
+    ''');
+
+    // 2. Bảng lưu chi tiết các địa danh đã lưu trong chuyến đi
+    await db.execute('''
+      CREATE TABLE trip_locations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tripId TEXT NOT NULL,
+        locationId INTEGER NOT NULL,
+        name TEXT,
+        province TEXT,
+        description TEXT,
+        imageUrl TEXT,
+        rating REAL,
+        category TEXT,
+        latitude REAL,
+        longitude REAL,
+        FOREIGN KEY (tripId) REFERENCES trips (id) ON DELETE CASCADE
+      )
+    ''');
   }
 
-  Future<void> updateTrip(String id, Map<String, dynamic> values) async {
-    final db = await database;
-    await db.update('trips', values, where: 'id = ?', whereArgs: [id]);
+  // ==========================================================
+  // CÁC HÀM TƯƠNG TÁC CHO CHUYẾN ĐI (TRIPS)
+  // ==========================================================
+
+  Future<List<Map<String, dynamic>>> getTrips(String uid) async {
+    final db = await instance.database;
+    // Sắp xếp chuyến đi mới tạo lên đầu
+    return await db.query('trips', where: 'userId = ?', whereArgs: [uid], orderBy: 'id DESC');
   }
 
-  Future<void> updateNotes(String id, String notes) async {
-    final db = await database;
-    await db.update('trips', {'notes': notes}, where: 'id = ?', whereArgs: [id]);
+  Future<List<Map<String, dynamic>>> getUnsyncedTrips(String uid) async {
+    final db = await instance.database;
+    return await db.query('trips', where: 'userId = ? AND synced = 0', whereArgs: [uid]);
   }
 
-  Future<List<Map<String, dynamic>>> getTrips(String userId) async {
-    final db = await database;
-    return await db.query('trips', where: 'userId = ?', whereArgs: [userId], orderBy: 'id DESC');
+  Future<int> insertTrip(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.insert('trips', row, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
-  Future<List<Map<String, dynamic>>> getUnsyncedTrips(String userId) async {
-    final db = await database;
-    return await db.query('trips', where: 'userId = ? AND synced = 0', whereArgs: [userId]);
+  Future<int> updateTrip(String id, Map<String, dynamic> values) async {
+    final db = await instance.database;
+    return await db.update('trips', values, where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<void> deleteTrip(String id) async {
-    final db = await database;
-    await db.delete('trips', where: 'id = ?', whereArgs: [id]);
-    await db.delete('trip_locations', where: 'tripId = ?', whereArgs: [id]);
+  Future<int> updateNotes(String tripId, String notes) async {
+    final db = await instance.database;
+    return await db.update('trips', {'notes': notes}, where: 'id = ?', whereArgs: [tripId]);
   }
 
-  // ===== TRIP LOCATIONS =====
-  Future<void> insertTripLocation(Map<String, dynamic> loc) async {
-    final db = await database;
-    await db.insert('trip_locations', loc);
+  Future<int> deleteTrip(String tripId) async {
+    final db = await instance.database;
+    // Xóa các địa danh thuộc chuyến đi trước (tránh rác DB)
+    await db.delete('trip_locations', where: 'tripId = ?', whereArgs: [tripId]);
+    return await db.delete('trips', where: 'id = ?', whereArgs: [tripId]);
   }
 
-  Future<void> deleteTripLocation(String tripId, int locationId) async {
-    final db = await database;
-    await db.delete('trip_locations', where: 'tripId = ? AND locationId = ?', whereArgs: [tripId, locationId]);
-  }
+  // ==========================================================
+  // CÁC HÀM TƯƠNG TÁC CHO ĐỊA ĐIỂM (TRIP LOCATIONS)
+  // ==========================================================
 
   Future<List<Map<String, dynamic>>> getTripLocations(String tripId) async {
-    final db = await database;
+    final db = await instance.database;
     return await db.query('trip_locations', where: 'tripId = ?', whereArgs: [tripId]);
+  }
+
+  Future<int> insertTripLocation(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.insert('trip_locations', row, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
+  Future<int> deleteTripLocation(String tripId, int locationId) async {
+    final db = await instance.database;
+    return await db.delete('trip_locations', where: 'tripId = ? AND locationId = ?', whereArgs: [tripId, locationId]);
+  }
+
+  Future close() async {
+    final db = await _database;
+    if (db != null) await db.close();
   }
 }

@@ -38,6 +38,14 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+    packaging {
+        jniLibs {
+            keepDebugSymbols.add("*/x86_64/*.so")
+            keepDebugSymbols.add("*/armeabi-v7a/*.so")
+            keepDebugSymbols.add("*/arm64-v8a/*.so")
+            keepDebugSymbols.add("*/x86/*.so")
+        }
+    }
 }
 
 flutter {

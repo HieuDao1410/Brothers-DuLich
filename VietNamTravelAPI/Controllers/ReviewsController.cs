@@ -156,5 +156,6 @@ namespace VietNamTravelAPI.Controllers
             location.Rating = ratings.Any() ? Math.Round(ratings.Average(), 1) : 0;
             await _context.SaveChangesAsync();
         }
+
     }
 }

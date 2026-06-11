@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import '../../providers/trip_provider.dart';
 import '../../models/location_model.dart';
 import '../../utils/app_colors.dart';
+import '../../services/api_service.dart';
+import '../../utils/location_placeholder.dart';
+import 'detail_screen.dart';
 
 // ============================================================================
 // 1. MÀN HÌNH CHÍNH (SCHEDULE SCREEN)
@@ -18,6 +21,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
+    // Tự động load dữ liệu từ SQLite khi vừa vào màn hình Lịch trình
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<TripProvider>(context, listen: false).loadTrips();
     });
@@ -56,59 +60,59 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               title: Text('Tạo chuyến đi mới', style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
-                child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: tripNameController,
-                    style: TextStyle(color: AppColors.text(context)),
-                    decoration: InputDecoration(
-                      hintText: 'Nhập tên chuyến đi (VD: Đà Lạt)',
-                      hintStyle: TextStyle(color: AppColors.textMuted(context), fontSize: 14),
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.border(context))),
-                      focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.green)),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // 1 nút mở lịch chọn khoảng ngày
-                  InkWell(
-                    onTap: () async {
-                      final picked = await _pickDateRange(context, range);
-                      if (picked != null) setStateDialog(() => range = picked);
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: AppColors.bg(context),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextField(
+                        controller: tripNameController,
+                        style: TextStyle(color: AppColors.text(context)),
+                        decoration: InputDecoration(
+                          hintText: 'Nhập tên chuyến đi (VD: Đà Lạt)',
+                          hintStyle: TextStyle(color: AppColors.textMuted(context), fontSize: 14),
+                          enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.border(context))),
+                          focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.green)),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // 1 nút mở lịch chọn khoảng ngày
+                      InkWell(
+                        onTap: () async {
+                          final picked = await _pickDateRange(context, range);
+                          if (picked != null) setStateDialog(() => range = picked);
+                        },
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border(context)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.date_range, color: AppColors.green, size: 20),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: range == null
-                                ? Text('Chọn ngày đi (tùy chọn)', style: TextStyle(color: AppColors.textMuted(context)))
-                                : Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('${fmt(range!.start)}  →  ${fmt(range!.end)}',
-                                          style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold)),
-                                      const SizedBox(height: 2),
-                                      Text('$days ngày', style: const TextStyle(color: AppColors.green, fontSize: 12, fontWeight: FontWeight.bold)),
-                                    ],
-                                  ),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: AppColors.bg(context),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.border(context)),
                           ),
-                          Icon(Icons.chevron_right, color: AppColors.textMuted(context)),
-                        ],
+                          child: Row(
+                            children: [
+                              const Icon(Icons.date_range, color: AppColors.green, size: 20),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: range == null
+                                    ? Text('Chọn ngày đi (tùy chọn)', style: TextStyle(color: AppColors.textMuted(context)))
+                                    : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${fmt(range!.start)}  →  ${fmt(range!.end)}',
+                                        style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold)),
+                                    const SizedBox(height: 2),
+                                    Text('$days ngày', style: const TextStyle(color: AppColors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                              ),
+                              Icon(Icons.chevron_right, color: AppColors.textMuted(context)),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              )),
+                    ],
+                  )),
               actions: [
                 TextButton(onPressed: () => Navigator.pop(context), child: Text('HỦY', style: TextStyle(color: AppColors.textMuted(context)))),
                 ElevatedButton(
@@ -187,106 +191,106 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       ),
       body: createdTrips.isEmpty
           ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Container(
-                  padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(color: AppColors.bg(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border(context))),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.flight, color: AppColors.text(context), size: 48),
-                      const SizedBox(height: 24),
-                      Text('Lập kế hoạch chuyến đi', textAlign: TextAlign.center, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.text(context))),
-                      const SizedBox(height: 16),
-                      Text('Hãy bắt đầu hành trình của bạn bằng cách tạo một chuyến đi mới.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted(context), fontSize: 15, height: 1.5)),
-                      const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: () => _showCreateTripDialog(context),
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.green, foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
-                        child: const Text('Tạo một chuyến đi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(color: AppColors.bg(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border(context))),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.flight, color: AppColors.text(context), size: 48),
+                const SizedBox(height: 24),
+                Text('Lập kế hoạch chuyến đi', textAlign: TextAlign.center, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.text(context))),
+                const SizedBox(height: 16),
+                Text('Hãy bắt đầu hành trình của bạn bằng cách tạo một chuyến đi mới.', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted(context), fontSize: 15, height: 1.5)),
+                const SizedBox(height: 32),
+                ElevatedButton(
+                  onPressed: () => _showCreateTripDialog(context),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.green, foregroundColor: Colors.black, minimumSize: const Size(double.infinity, 50), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))),
+                  child: const Text('Tạo một chuyến đi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-              ),
-            )
+              ],
+            ),
+          ),
+        ),
+      )
           : ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: createdTrips.length,
-              itemBuilder: (context, index) {
-                final trip = createdTrips[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border(context))),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(12),
-                    leading: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Container(width: 64, height: 64, color: AppColors.surface2(context), child: Icon(Icons.flight_takeoff, color: AppColors.textMuted(context), size: 28)),
-                    ),
-                    title: Text(trip.name, style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold, fontSize: 18)),
-                    subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 6.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(trip.dateRange, style: TextStyle(color: AppColors.textMuted(context), fontSize: 13)),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 8,
-                            runSpacing: 2,
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              Text(trip.status, style: const TextStyle(color: AppColors.green, fontSize: 12, fontWeight: FontWeight.bold)),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(trip.synced ? Icons.cloud_done : Icons.cloud_off, size: 14, color: trip.synced ? AppColors.green : AppColors.textMuted(context)),
-                                  const SizedBox(width: 4),
-                                  Text(trip.synced ? 'Đã đồng bộ' : 'Lưu cục bộ', style: TextStyle(color: AppColors.textMuted(context), fontSize: 11)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    trailing: PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert, color: AppColors.textMuted(context)),
-                      color: AppColors.surface(context),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      onSelected: (value) {
-                        if (value == 'delete') {
-                          _showDeleteConfirmDialog(context, trip.id, trip.name);
-                        }
-                      },
-                      itemBuilder: (context) => const [
-                        PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
-                              SizedBox(width: 12),
-                              Text('Xóa chuyến đi', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                            ],
-                          ),
+        padding: const EdgeInsets.all(16.0),
+        itemCount: createdTrips.length,
+        itemBuilder: (context, index) {
+          final trip = createdTrips[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border(context))),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(12),
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(width: 64, height: 64, color: AppColors.surface2(context), child: Icon(Icons.flight_takeoff, color: AppColors.textMuted(context), size: 28)),
+              ),
+              title: Text(trip.name, style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold, fontSize: 18)),
+              subtitle: Padding(
+                padding: const EdgeInsets.only(top: 6.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(trip.dateRange, style: TextStyle(color: AppColors.textMuted(context), fontSize: 13)),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 2,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        Text(trip.status, style: const TextStyle(color: AppColors.green, fontSize: 12, fontWeight: FontWeight.bold)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(trip.synced ? Icons.cloud_done : Icons.cloud_off, size: 14, color: trip.synced ? AppColors.green : AppColors.textMuted(context)),
+                            const SizedBox(width: 4),
+                            Text(trip.synced ? 'Đã đồng bộ' : 'Lưu cục bộ', style: TextStyle(color: AppColors.textMuted(context), fontSize: 11)),
+                          ],
                         ),
                       ],
                     ),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => TripDetailScreen(tripId: trip.id)));
-                    },
+                  ],
+                ),
+              ),
+              trailing: PopupMenuButton<String>(
+                icon: Icon(Icons.more_vert, color: AppColors.textMuted(context)),
+                color: AppColors.surface(context),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    _showDeleteConfirmDialog(context, trip.id, trip.name);
+                  }
+                },
+                itemBuilder: (context) => const [
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                        SizedBox(width: 12),
+                        Text('Xóa chuyến đi', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
                   ),
-                );
+                ],
+              ),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => TripDetailScreen(tripId: trip.id)));
               },
             ),
+          );
+        },
+      ),
     );
   }
 }
 
 // ============================================================================
-// 2. MÀN HÌNH CHI TIẾT CHUYẾN ĐI
+// 2. MÀN HÌNH CHI TIẾT CHUYẾN ĐI (Giữ nguyên cấu trúc Tab của bạn)
 // ============================================================================
 class TripDetailScreen extends StatefulWidget {
   final String tripId;
@@ -424,7 +428,17 @@ class _TripDetailScreenState extends State<TripDetailScreen> with SingleTickerPr
             contentPadding: const EdgeInsets.all(12),
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Container(width: 64, height: 64, color: AppColors.surface2(context), child: Icon(Icons.landscape, color: AppColors.textMuted(context))),
+              child: Container(
+                width: 64, height: 64, color: AppColors.surface2(context),
+                child: location.imageUrl.isEmpty
+                    ? LocationPlaceholder(category: location.category, name: location.name)
+                    : Image.network(
+                  ApiService.fullImageUrl(location.imageUrl),
+                  headers: const {'User-Agent': 'ltdd_brothers/1.0'},
+                  fit: BoxFit.cover,
+                  errorBuilder: (c, e, s) => LocationPlaceholder(category: location.category, name: location.name),
+                ),
+              ),
             ),
             title: Text(location.name, style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold, fontSize: 16)),
             subtitle: Text(location.province, style: TextStyle(color: AppColors.textMuted(context), fontSize: 13)),
@@ -432,6 +446,12 @@ class _TripDetailScreenState extends State<TripDetailScreen> with SingleTickerPr
               icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
               onPressed: () => tripProvider.removeLocationFromTrip(tripId, location.id),
             ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DetailScreen(location: location)),
+              );
+            },
           ),
         );
       },
@@ -468,24 +488,24 @@ class _TripDetailScreenState extends State<TripDetailScreen> with SingleTickerPr
             child: _tripDates.isEmpty
                 ? Center(child: Text('Hãy thêm ngày để sắp xếp lịch trình', style: TextStyle(color: AppColors.textMuted(context))))
                 : ListView.builder(
-                    itemCount: _tripDates.length,
-                    itemBuilder: (context, index) {
-                      final date = _tripDates[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(16)),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.event, color: AppColors.green, size: 20),
-                            const SizedBox(width: 12),
-                            Text("Ngày ${index + 1}: ${date.day}/${date.month}/${date.year}",
-                                style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold)),
-                          ],
-                        ),
-                      );
-                    },
+              itemCount: _tripDates.length,
+              itemBuilder: (context, index) {
+                final date = _tripDates[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(color: AppColors.surface(context), borderRadius: BorderRadius.circular(16)),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.event, color: AppColors.green, size: 20),
+                      const SizedBox(width: 12),
+                      Text("Ngày ${index + 1}: ${date.day}/${date.month}/${date.year}",
+                          style: TextStyle(color: AppColors.text(context), fontWeight: FontWeight.bold)),
+                    ],
                   ),
+                );
+              },
+            ),
           )
         ],
       ),

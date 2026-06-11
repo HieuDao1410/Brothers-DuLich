@@ -1,20 +1,21 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace VietNamTravelAPI.Models
 {
-    // Lịch trình chuyến đi - đồng bộ từ SQLite cục bộ của thiết bị lên Server
     public class Schedule
     {
         [Key]
         public int ScheduleId { get; set; }
-
-        // FK tới bảng Users (UID Firebase)
-        [Required]
         public string UserId { get; set; } = string.Empty;
-
         public string Title { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
 
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        [ForeignKey("UserId")]
+        public User? User { get; set; }
+
+        // Bổ sung danh sách chi tiết địa danh
+        public ICollection<ScheduleDetail>? ScheduleDetails { get; set; }
     }
 }
