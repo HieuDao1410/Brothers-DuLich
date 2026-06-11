@@ -71,8 +71,16 @@ class AuthService {
         password: password,
       );
 
-      // --- KIỂM TRA TRẠNG THÁI KHÓA TÀI KHOẢN ---
       if (userCredential.user != null) {
+        // TỰ ĐỒNG BỘ LẠI (idempotent): vá trường hợp lúc đăng ký server lỗi nên
+        // MySQL chưa có dòng user. Hàm sync ở backend bỏ qua nếu user đã tồn tại.
+        await _syncUserToBackend(
+          userCredential.user!.uid,
+          userCredential.user!.email ?? email,
+          userCredential.user!.displayName ?? 'Khách du lịch',
+        );
+
+        // --- KIỂM TRA TRẠNG THÁI KHÓA TÀI KHOẢN ---
         bool isBanned = await _isBannedInMySQL(userCredential.user!.uid);
         if (isBanned) {
           await logOut(); // Bị khóa -> Đăng xuất ngay lập tức sạch session
@@ -85,6 +93,20 @@ class AuthService {
       if (e.toString().contains('BANNED')) rethrow; // Đẩy tiếp cờ lỗi BANNED ra UI
       print("Lỗi đăng nhập: $e");
       return null;
+    }
+  }
+
+  // GỬI EMAIL ĐẶT LẠI MẬT KHẨU (trả về null nếu thành công, ngược lại là thông báo lỗi)
+  Future<String?> sendPasswordReset(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+      return null;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'invalid-email') return 'Email không hợp lệ.';
+      if (e.code == 'user-not-found') return 'Không tìm thấy tài khoản với email này.';
+      return 'Không gửi được email đặt lại mật khẩu.';
+    } catch (e) {
+      return 'Lỗi kết nối. Vui lòng thử lại.';
     }
   }
 

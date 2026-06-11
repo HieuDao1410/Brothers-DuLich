@@ -18,6 +18,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final Color _tripGreen = const Color(0xFF00AA6C);
   bool _isLoading = false;
 
+  void _handleForgotPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng nhập email vào ô phía trên rồi bấm lại.')),
+      );
+      return;
+    }
+    final error = await AuthService().sendPasswordReset(email);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error ?? 'Đã gửi email đặt lại mật khẩu tới $email. Hãy kiểm tra hộp thư!'),
+        backgroundColor: error == null ? Colors.green : Colors.redAccent,
+      ),
+    );
+  }
+
   void _handleLogin() async {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -151,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: _isLoading ? null : _handleForgotPassword,
                     child: const Text(
                       'Quên mật khẩu?',
                       style: TextStyle(

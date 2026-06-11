@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'screens/auth/login_screen.dart';
+import 'screens/user/main_navigation.dart';
+import 'screens/admin/admin_dashboard.dart';
 import 'providers/favorite_provider.dart';
 import 'providers/trip_provider.dart';
 import 'providers/review_provider.dart';
 import 'providers/theme_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +57,16 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
         useMaterial3: true,
       ),
-      home: const LoginScreen(),
+      home: _resolveHome(),
     );
+  }
+
+  // Đăng nhập offline: Firebase đã lưu sẵn session trên máy, dùng được cả khi mất mạng.
+  // Nếu đã có phiên đăng nhập -> vào thẳng màn chính, không kẹt ở Login.
+  Widget _resolveHome() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return const LoginScreen();
+    if (user.email == 'admin@gmail.com') return const AdminDashboard();
+    return const MainNavigation();
   }
 }
