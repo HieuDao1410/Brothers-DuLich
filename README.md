@@ -27,8 +27,8 @@
 | Người | Phụ trách | File chính |
 |---|---|---|
 | **Đào Văn Hiếu** (nhóm trưởng) | **Khám phá, Lân cận, Bản đồ & Quản lý Địa danh** + tổng hợp | `home_screen`, `nearby_screen`, `detail_screen`, `location_map_screen`, `location_service`, `favorite_screen`, `admin/manage_locations`, `admin/add_location` · `LocationsController` |
-| **Lê Quốc Trung** | Mạng xã hội & Quản trị | `community_screen`, `create_post_screen`, `comments_screen`, `community_service`, `admin/admin_dashboard`, `admin/manage_users`, `admin/moderate_posts`, `admin/moderate_reviews` · `PostsController` |
-| **Nguyễn Đặng Vĩnh Khang** | Tài khoản & Giao diện | `auth/login_screen`, `auth/register_screen`, `auth_service`, `profile_screen`, `theme_provider`, `utils/app_colors`, `utils/location_placeholder` · `UsersController` |
+| **Nguyễn Đặng Vĩnh Khang** | Mạng xã hội & Quản trị | `community_screen`, `create_post_screen`, `comments_screen`, `community_service`, `admin/admin_dashboard`, `admin/manage_users`, `admin/moderate_posts`, `admin/moderate_reviews` · `PostsController` |
+| **Lê Quốc Trung** | Tài khoản & Giao diện | `auth/login_screen`, `auth/register_screen`, `auth_service`, `profile_screen`, `theme_provider`, `utils/app_colors`, `utils/location_placeholder` · `UsersController` |
 | **Nguyễn Ngọc Quý** | Đánh giá & Lịch trình | `review_screen`, `location_reviews_screen`, `review_service`, `schedule_screen`, `trip_provider`, `local_db`, `schedule_service` · `ReviewsController`, `SchedulesController` |
 
 ## Các chức năng
