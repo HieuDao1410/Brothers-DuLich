@@ -17,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final Color _tripGreen = const Color(0xFF00AA6C);
   bool _isLoading = false;
+  bool _obscurePassword = true; // Ẩn/hiện mật khẩu
 
   void _handleForgotPassword() async {
     final email = _emailController.text.trim();
@@ -146,12 +147,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   style: const TextStyle(color: Colors.black),
                   cursorColor: Colors.black,
                   decoration: InputDecoration(
                     labelText: 'Mật khẩu',
                     labelStyle: const TextStyle(color: Colors.black54),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.black54,
+                      ),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),

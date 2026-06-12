@@ -16,6 +16,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false; // Biến trạng thái loading
+  bool _obscurePassword = true; // Ẩn/hiện mật khẩu
+  bool _obscureConfirm = true; // Ẩn/hiện xác nhận mật khẩu
 
   // HÀM XỬ LÝ ĐĂNG KÝ
   void _handleRegister() async {
@@ -127,12 +129,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               TextField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 style: const TextStyle(color: Colors.black),
                 cursorColor: Colors.black,
                 decoration: InputDecoration(
                   labelText: 'Mật khẩu',
                   prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
@@ -140,12 +146,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
               TextField(
                 controller: _confirmPasswordController,
-                obscureText: true,
+                obscureText: _obscureConfirm,
                 style: const TextStyle(color: Colors.black),
                 cursorColor: Colors.black,
                 decoration: InputDecoration(
                   labelText: 'Xác nhận mật khẩu',
                   prefixIcon: const Icon(Icons.lock_reset),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscureConfirm ? Icons.visibility_off : Icons.visibility),
+                    onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  ),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
